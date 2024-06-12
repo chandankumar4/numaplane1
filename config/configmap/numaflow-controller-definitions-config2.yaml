@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: numaflow-controller-definitions-config
+  name: numaflow-controller-definitions-config2
   labels:
     numa: numarollout-controller-config
 data:
-  controller_definitions.yaml: |
+  controller_definitions2.yaml: |
     controllerDefinitions:
-    - version: "1.2.1"
+    - version: "1.2.0"
       fullSpec: |
         apiVersion: apps/v1
         kind: Deployment
@@ -391,4 +391,6 @@ data:
         kind: ConfigMap
         metadata:
           name: numaflow-cmd-params-config
+    - version: "1.1.7"
+      fullSpec: ""
 immutable: true

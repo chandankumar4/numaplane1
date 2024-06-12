@@ -85,12 +85,26 @@ spec:
               mountPath: /etc/numaplane
             - name: numarollout-volume
               mountPath: /etc/numarollout
+        - name: sidecar
+          image: kiwigrid/k8s-sidecar:latest
+          volumeMounts:
+            - name: numarollout-volume
+              mountPath: /etc/numarollout
+          env:
+            - name: LABEL
+              value: "numa"
+            - name: LABEL_VALUE
+              value: "numarollout-controller-config"
+            - name: FOLDER
+              value: /etc/numarollout/
       serviceAccountName: numaplane-sa
       terminationGracePeriodSeconds: 10
       volumes:
+        - name: numarollout-volume
+          emptyDir: {}
         - name: config-volume
           configMap:
             name: numaplane-controller-config
-        - name: numarollout-volume
-          configMap:
-            name: numaflow-controller-definitions-config
+#        - name: numarollout-volume
+#          configMap:
+#            name: numaflow-controller-definitions-config

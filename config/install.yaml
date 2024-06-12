@@ -1123,11 +1123,11 @@ data:
         kind: ConfigMap
         metadata:
           name: numaflow-cmd-params-config
-    - version: "1.1.7"
-      fullSpec: ""
 immutable: true
 kind: ConfigMap
 metadata:
+  labels:
+    numa: numarollout-controller-config
   name: numaflow-controller-definitions-config
   namespace: numaplane-system
 ---
@@ -1203,13 +1203,24 @@ spec:
           name: config-volume
         - mountPath: /etc/numarollout
           name: numarollout-volume
+      - env:
+        - name: LABEL
+          value: numa
+        - name: LABEL_VALUE
+          value: numarollout-controller-config
+        - name: FOLDER
+          value: /etc/numarollout/
+        image: kiwigrid/k8s-sidecar:latest
+        name: sidecar
+        volumeMounts:
+        - mountPath: /etc/numarollout
+          name: numarollout-volume
       initContainers: []
       serviceAccountName: numaplane-sa
       terminationGracePeriodSeconds: 10
       volumes:
+      - emptyDir: {}
+        name: numarollout-volume
       - configMap:
           name: numaplane-controller-config
         name: config-volume
-      - configMap:
-          name: numaflow-controller-definitions-config
-        name: numarollout-volume
