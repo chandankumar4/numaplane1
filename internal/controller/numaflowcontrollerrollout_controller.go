@@ -39,6 +39,7 @@ import (
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	runtimecontroller "sigs.k8s.io/controller-runtime/pkg/controller"
@@ -77,6 +78,7 @@ type NumaflowControllerRolloutReconciler struct {
 	kubectl       kubeUtil.Kubectl
 	stateCache    sync.LiveStateCache
 	customMetrics *metrics.CustomMetrics
+	recorder      record.EventRecorder
 }
 
 func NewNumaflowControllerRolloutReconciler(
@@ -85,6 +87,7 @@ func NewNumaflowControllerRolloutReconciler(
 	rawConfig *rest.Config,
 	kubectl kubeUtil.Kubectl,
 	customMetrics *metrics.CustomMetrics,
+	recorder record.EventRecorder,
 ) (*NumaflowControllerRolloutReconciler, error) {
 	stateCache := sync.NewLiveStateCache(rawConfig, customMetrics)
 	numaLogger := logger.GetBaseLogger().WithName("state cache").WithValues("numaflowcontrollerrollout")
@@ -106,6 +109,7 @@ func NewNumaflowControllerRolloutReconciler(
 		kubectl,
 		stateCache,
 		customMetrics,
+		recorder,
 	}, nil
 }
 

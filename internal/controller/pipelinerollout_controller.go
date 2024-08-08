@@ -32,6 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -73,6 +74,7 @@ type PipelineRolloutReconciler struct {
 	shutdownWorkerWaitGroup *sync.WaitGroup
 	// customMetrics is used to generate the custom metrics for the Pipeline
 	customMetrics *metrics.CustomMetrics
+	recorder      record.EventRecorder
 }
 
 func NewPipelineRolloutReconciler(
@@ -80,6 +82,7 @@ func NewPipelineRolloutReconciler(
 	s *runtime.Scheme,
 	restConfig *rest.Config,
 	customMetrics *metrics.CustomMetrics,
+	recorder record.EventRecorder,
 ) *PipelineRolloutReconciler {
 
 	numaLogger := logger.GetBaseLogger().WithName(loggerName)
@@ -97,6 +100,7 @@ func NewPipelineRolloutReconciler(
 		pipelineRolloutQueue,
 		&sync.WaitGroup{},
 		customMetrics,
+		recorder,
 	}
 	pipelineROReconciler = r
 
