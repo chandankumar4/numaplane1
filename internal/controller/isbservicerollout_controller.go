@@ -123,7 +123,7 @@ func (r *ISBServiceRolloutReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		statusUpdateErr := r.updateISBServiceRolloutStatusToFailed(ctx, isbServiceRollout, err)
 		if statusUpdateErr != nil {
 			r.customMetrics.ISBServicesSyncFailed.WithLabelValues().Inc()
-			r.recorder.Eventf(isbServiceRollout, corev1.EventTypeWarning, "StatusUpdateFailed", "Failed to update isb service rollout status: %v", err.Error())
+			r.recorder.Eventf(isbServiceRollout, corev1.EventTypeWarning, "UpdateStatusFailed", "Failed to update isb service rollout status: %v", err.Error())
 			return ctrl.Result{}, statusUpdateErr
 		}
 		return ctrl.Result{}, err
@@ -139,7 +139,7 @@ func (r *ISBServiceRolloutReconciler) Reconcile(ctx context.Context, req ctrl.Re
 			statusUpdateErr := r.updateISBServiceRolloutStatusToFailed(ctx, isbServiceRollout, err)
 			if statusUpdateErr != nil {
 				r.customMetrics.ISBServicesSyncFailed.WithLabelValues().Inc()
-				r.recorder.Eventf(isbServiceRollout, corev1.EventTypeWarning, "StatusUpdateFailed", "Failed to update isb service rollout status: %v", err.Error())
+				r.recorder.Eventf(isbServiceRollout, corev1.EventTypeWarning, "UpdateStatusFailed", "Failed to update isb service rollout status: %v", err.Error())
 				return ctrl.Result{}, statusUpdateErr
 			}
 			return ctrl.Result{}, err
@@ -153,7 +153,7 @@ func (r *ISBServiceRolloutReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		statusUpdateErr := r.updateISBServiceRolloutStatus(ctx, isbServiceRollout)
 		if statusUpdateErr != nil {
 			r.customMetrics.ISBServicesSyncFailed.WithLabelValues().Inc()
-			r.recorder.Eventf(isbServiceRollout, corev1.EventTypeWarning, "StatusUpdateFailed", "Failed to update isb service rollout status: %v", err.Error())
+			r.recorder.Eventf(isbServiceRollout, corev1.EventTypeWarning, "UpdateStatusFailed", "Failed to update isb service rollout status: %v", err.Error())
 			return ctrl.Result{}, statusUpdateErr
 		}
 	}
@@ -308,6 +308,7 @@ func (r *ISBServiceRolloutReconciler) processExistingISBService(ctx context.Cont
 				}
 				if allPaused {
 					numaLogger.Infof("confirmed all Pipelines have paused so ISBService can safely update")
+					r.recorder.Eventf(isbServiceRollout, corev1.EventTypeNormal, "PipelinesPaused", "All Pipelines have paused for ISBService update")
 					// update ISBService
 					err = kubernetes.UpdateCR(ctx, r.restConfig, newISBServiceDef, "interstepbufferservices")
 					if err != nil {
@@ -378,6 +379,7 @@ func (r *ISBServiceRolloutReconciler) requestPipelinesPause(ctx context.Context,
 	updated := GetPauseModule().updateISBServicePauseRequest(isbService.Namespace, isbService.Name, pause)
 	if updated { // if the value is different from what it was then make sure we queue the pipelines to be processed
 		numaLogger.Infof("updated pause request = %t", pause)
+		r.recorder.Eventf(isbServiceRollout, corev1.EventTypeNormal, "PipelinesPauseRequest", "Pipelines pause request updated to %t", pause)
 		pipelines, err := r.getPipelines(ctx, isbService)
 		if err != nil {
 			return false, err
